@@ -14,6 +14,7 @@ class ConexaoSQLServer:
         self.__bancoDados = ' '
         self.__usuario = ' '
         self.__senha = ' '
+        self.__caminhoArquivosScriptSQL = ' '
         self.__conectado = False
         self.__status = StatusExecucao.SemRequisicao
         self.__mensagem = ' '
@@ -67,6 +68,19 @@ class ConexaoSQLServer:
     def senha(self, valor):
         if type(valor) == type(self.__senha):
             self.__senha = valor
+        else:
+            self.__status = StatusExecucao.Erro
+            self.__mensagem = "Tipo de dado inválido."
+
+    # Caminho para os Arquivos de Script SQL Server
+    @property
+    def caminhoArquivosScriptSQL(self):
+        return self.__caminhoArquivosScriptSQL
+
+    @caminhoArquivosScriptSQL.setter
+    def caminhoArquivosScriptSQL(self, valor):
+        if type(valor) == type(self.__caminhoArquivosScriptSQL):
+            self.__caminhoArquivosScriptSQL = valor
         else:
             self.__status = StatusExecucao.Erro
             self.__mensagem = "Tipo de dado inválido."
@@ -203,6 +217,11 @@ class ConexaoSQLServer:
                     self.__senha = vAux[1]
                     self.__senha = self.__senha.strip()
 
+                elif linha.find('[CAMINHO ARQUIVOS SCRIPT SQL SERVER]') == 0:
+                    vAux = linha.split('|')
+                    self.__caminhoArquivosScriptSQL = vAux[1]
+                    self.__caminhoArquivosScriptSQL = self.__caminhoArquivosScriptSQL.strip()
+
             arq.close()
 
         except Exception as erro:
@@ -224,8 +243,8 @@ class ConexaoSQLServer:
             if self.__status != StatusExecucao.Sucesso:
                 self.__mensagem += f'. Ao executar o método < {vMetodoConexao} >'
 
-    # (executaArquivoScript) Método que Executa/Aplica um Script Conforme o Conteúdo de um Arquivo.
-    def executaArquivoScript(self, CaminhoArquivo, NomeArquivo):
+    # (executaArquivoScriptSQL) Método que Executa/Aplica um Script SQL Conforme o Conteúdo de um Arquivo.
+    def executaArquivoScriptSQL(self, CaminhoArquivo, NomeArquivo):
         self.__LimpaStatus()
 
         __CaminhoArquivo = CaminhoArquivo
