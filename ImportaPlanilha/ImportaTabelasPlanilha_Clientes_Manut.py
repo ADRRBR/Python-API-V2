@@ -41,36 +41,49 @@ else:
 
 # -------------------------------- OPERAÇÃO E LEITURA DA PLANILHA PARA MANUTENÇÃO
 
-RegistraLinhaArquivo(logExec,'Preparando para ler a planilha...', True)
+caminhoPlanilha = os.getcwd() + "\ ".strip()
+nomePlanilha = 'Clientes_Manut.xlsx'
+tabela = 'TAB_CLIENTES'
+operacao = 'INC'
+
+TipoAtualizacao = None
+
+match operacao.upper():
+    case 'INC':
+        pastaTrabalhoPlanilha = 'Inclusão'
+        TipoAtualizacao = conexao.tipoAtualizacaoBD.Incluir
+    case 'ALT':
+        pastaTrabalhoPlanilha = 'Alteração'
+        TipoAtualizacao = conexao.tipoAtualizacaoBD.Alterar
+    case 'EXC':
+        pastaTrabalhoPlanilha = 'Exclusão'
+        TipoAtualizacao = conexao.tipoAtualizacaoBD.Excluir
+    case 'CON':
+        pastaTrabalhoPlanilha = 'Consulta'
+
+if TipoAtualizacao == None and operacao.upper() != 'CON':
+    sMensagem = 'Operação para Manutenção Inválida: {operacao}. Permitido: INC / ALT / EXC / CON (Inclusão / Alteração / Exclusão / Consulta)'
+    RegistraLinhaArquivo(logExec, sMensagem, True)
+    sys.exit(sMensagem)
+
+RegistraLinhaArquivo(logExec, 'Preparando o Acesso à Classe < Planilha >...', True)
 
 planilha = clsPlanilha.Planilha()
-tabPlan = planilha.arquivoConfigPlanilha('', '')
+planilha.planilhaCaminho = caminhoPlanilha
+planilha.planilhaNome = nomePlanilha
+planilha.pastaTrabalho = pastaTrabalhoPlanilha
+planilha.faixaCelulas = 'A:I'
+planilha.linhaInicial = 1
+planilha.linhaFinal = 50000
+
+RegistraLinhaArquivo(logExec,'Preparando para ler a planilha...', True)
+
+tabPlan = planilha.lerPlanilha()
 if planilha.status != StatusExecucao.Sucesso:
     RegistraLinhaArquivo(logExec, planilha.mensagem, True)
     sys.exit(planilha.mensagem)
 
 qtdeLinhas = len(tabPlan)
-
-nomeTabelaManut = ''
-if planilha.planilhaNome.find('.') >= 0:
-    nomeTabelaManut = planilha.planilhaNome
-    nomeTabelaManut = nomeTabelaManut.split('.')
-    nomeTabelaManut = nomeTabelaManut[0]
-
-TipoAtualizacao = None
-
-match planilha.pastaTrabalho.upper():
-    case 'INCLUSAO':
-        TipoAtualizacao = conexao.tipoAtualizacaoBD.Incluir
-    case 'ALTERACAO':
-        TipoAtualizacao = conexao.tipoAtualizacaoBD.Alterar
-    case 'EXCLUSAO':
-        TipoAtualizacao = conexao.tipoAtualizacaoBD.Excluir
-
-if TipoAtualizacao == None:
-    sMensagem = 'Operação para Manutenção Inválida: {operacao}. Permitido: INCLUSAO / ALTERACAO / EXCLUSAO (Pasta de Trabalho da Planilha'
-    RegistraLinhaArquivo(logExec, sMensagem, True)
-    sys.exit(sMensagem)
 
 # Identifica e Separa o Cabeçalho da Planilha
 dic_Cabecalho = tabPlan.head().to_dict()
@@ -86,7 +99,7 @@ RegistraLinhaArquivo(logExec, 'Preparando o Acesso/Manutenção à Classe < Tabe
 
 tabelaManut = clsTabelas.Tabela()
 tabelaManut.conexao = conexao
-tabelaManut.tabela = nomeTabelaManut
+tabelaManut.tabela = tabela
 
 for linha in range(qtdeLinhas):
      dic_Registro = {}
