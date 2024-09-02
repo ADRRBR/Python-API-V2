@@ -6,3 +6,5 @@
 [CAMINHO ARQUIVOS SCRIPT SQL SERVER]|C:\ADRRBR\Projetos\Python\Principal\VM_Repositorio\Mais Nuvem\SQL\Scripts\
 
 
+
+

@@ -1,5 +1,3 @@
-import sys
-
 from Classes.BAS_Generico import *
 from Classes.BAS_Arquivo import *
 from Classes.SIS_Conexao import clsConexaoBancoDados
@@ -45,6 +43,7 @@ RegistraLinhaArquivo(logExec,'Preparando para ler a planilha...', True)
 
 planilha = clsPlanilha.Planilha()
 tabPlan = planilha.arquivoConfigPlanilha('', '')
+
 if planilha.status != StatusExecucao.Sucesso:
     RegistraLinhaArquivo(logExec, planilha.mensagem, True)
     sys.exit(planilha.mensagem)

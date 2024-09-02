@@ -6,8 +6,8 @@ class Planilha:
         self.__planilhaCaminho = ' '
         self.__planilhaNome = ' '
         self.__pastaTrabalho = ' '
-        self.__linhaInicial = 0
-        self.__linhaFinal = 0
+        self.__linhaCabecalho = 0
+        self.__qtdLinhasDados = 0
         self.__faixaCelulas = ' '
         self.__status = StatusExecucao.SemRequisicao
         self.__mensagem = ' '
@@ -51,28 +51,28 @@ class Planilha:
             self.__status = StatusExecucao.Erro
             self.__mensagem = "Tipo de dado inválido."
 
-    # Linha Inicial para Leitura da Planilha
+    # Linha onde se Encontra o Cabeçalho da Planilha
     @property
-    def linhaInicial(self):
-        return self.__l
+    def linhaCabecalho(self):
+        return self.__linhaCabecalho
 
-    @linhaInicial.setter
-    def linhaInicial(self, valor):
-        if type(valor) == type(self.__linhaInicial):
-            self.__linhaInicial = valor
+    @linhaCabecalho.setter
+    def linhaCabecalho(self, valor):
+        if type(valor) == type(self.__linhaCabecalho):
+            self.__linhaCabecalho = valor
         else:
             self.__status = StatusExecucao.Erro
             self.__mensagem = "Tipo de dado inválido."
 
-    # Linha Final para Leitura da Planilha
+    # Quantidade de Linhas Seguidas com Dados na Planilha após a Linha do Cabeçalho
     @property
-    def linhaFinal(self):
-        return self.__l
+    def qtdLinhasDados(self):
+        return self.__qtdLinhasDados
 
-    @linhaFinal.setter
-    def linhaFinal(self, valor):
-        if type(valor) == type(self.__linhaFinal):
-            self.__linhaFinal = valor
+    @qtdLinhasDados.setter
+    def qtdLinhasDados(self, valor):
+        if type(valor) == type(self.__qtdLinhasDados):
+            self.__qtdLinhasDados = valor
         else:
             self.__status = StatusExecucao.Erro
             self.__mensagem = "Tipo de dado inválido."
@@ -142,17 +142,17 @@ class Planilha:
                     self.__pastaTrabalho = vAux[1]
                     self.__pastaTrabalho = self.__pastaTrabalho.strip()
 
-                elif linha.find('[LINHA INICIAL]') == 0:
+                elif linha.find('[LINHA CABECALHO]') == 0:
                     vAux = linha.split('|')
-                    self.__linhaInicial = vAux[1]
-                    self.__linhaInicial = self.__linhaInicial.strip()
-                    self.__linhaInicial = int(self.__linhaInicial)
+                    self.__linhaCabecalho = vAux[1]
+                    self.__linhaCabecalho = self.__linhaCabecalho.strip()
+                    self.__linhaCabecalho = int(self.__linhaCabecalho)
 
-                elif linha.find('[LINHA FINAL]') == 0:
+                elif linha.find('[QTD LINHAS DADOS]') == 0:
                     vAux = linha.split('|')
-                    self.__linhaFinal = vAux[1]
-                    self.__linhaFinal = self.__linhaFinal.strip()
-                    self.__linhaFinal = int(self.__linhaFinal)
+                    self.__qtdLinhasDados = vAux[1]
+                    self.__qtdLinhasDados = self.__qtdLinhasDados.strip()
+                    self.__qtdLinhasDados = int(self.__qtdLinhasDados)
 
                 elif linha.find('[FAIXA DE CELULAS]') == 0:
                     vAux = linha.split('|')
@@ -186,10 +186,10 @@ class Planilha:
         if not self.__verificaParametros():
             return
 
-        linhaCabecalho = self.__linhaInicial - 1
+        self.__linhaCabecalho = self.__linhaCabecalho - 1
 
         try:
-            tabPlan = pd.read_excel(self.__planilhaCaminho + self.__planilhaNome, sheet_name=self.__pastaTrabalho, nrows=self.__linhaFinal, usecols=self.__faixaCelulas, header=linhaCabecalho)
+            tabPlan = pd.read_excel(self.__planilhaCaminho + self.__planilhaNome, sheet_name=self.__pastaTrabalho, nrows=self.__qtdLinhasDados, usecols=self.__faixaCelulas, header=self.__linhaCabecalho)
         except Exception as erro:
             self.__status = StatusExecucao.Erro
             self.__mensagem = (f'Ocorreu o erro {erro}. Ao ler a planilha {self.__planilhaCaminho + self.__planilhaNome}')
@@ -221,14 +221,14 @@ class Planilha:
             self.__mensagem = 'Informe a pasta de trabalho para leitura da planilha'
             return False
 
-        if self.__linhaInicial == 0:
+        if self.__linhaCabecalho == 0:
             self.__status = StatusExecucao.Erro
-            self.__mensagem = 'Informe a linha inicial para leitura da planilha, partindo sempre de 1'
+            self.__mensagem = 'Informe a linha correspondente ao cabeçalho da planilha'
             return False
 
-        if self.__linhaFinal <= self.__linhaInicial:
+        if self.__qtdLinhasDados == 0:
             self.__status = StatusExecucao.Erro
-            self.__mensagem = 'Informe a linha final para leitura da planilha, sendo sempre maior que o informado na linha inicial, pois sempre a primeira linha lida será considerada como cabeçalho'
+            self.__mensagem = 'Informe a quantidade de linhas seguidas com dados na planilha após a linha do cabeçalho'
             return False
 
         if self.__faixaCelulas == ' ':

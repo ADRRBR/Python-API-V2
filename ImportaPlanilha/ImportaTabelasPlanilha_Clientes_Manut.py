@@ -1,5 +1,3 @@
-import sys
-
 from Classes.BAS_Generico import *
 from Classes.BAS_Arquivo import *
 from Classes.SIS_Conexao import clsConexaoBancoDados
